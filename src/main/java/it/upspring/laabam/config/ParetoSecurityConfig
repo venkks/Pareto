@@ -1,0 +1,91 @@
+package it.upspring.laabam.config;
+
+/**
+ * Created by sourabhrohilla on 1/22/16.
+ */
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import javax.sql.DataSource;
+
+
+@Configuration
+@EnableWebSecurity
+public class ParetoSecurityConfig extends WebSecurityConfigurerAdapter {
+
+
+    @Autowired
+    DataSource dataSource;
+
+    @Autowired
+    public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+
+
+        auth.jdbcAuthentication().dataSource(dataSource).passwordEncoder(passwordEncoder())
+                .usersByUsernameQuery(
+                    //    "select email_id as username,password, CASE deleted WHEN 1 THEN 'false' ELSE 'true' END 'ENABLED'" +
+                      //          " from users where email_id=?")
+                        "select user_name as username,password, CASE deleted WHEN 1 THEN 'false' ELSE 'true' END 'ENABLED'" +
+                              " from users where user_name=?")
+
+
+                .authoritiesByUsernameQuery(
+                     /*   //"select u.email_id as username, concat('ROLE_',r.role_name) as role from users u, " +
+                          //      "roles r where email_id=? and u.role_id=r.id");*/
+                     //   "select u.email_id as username, concat('ROLE_',r.role_name) as role from users u, " +
+                       // "roles r where email_id=? and u.role_id=r.id");
+                        "select u.user_name as username, concat('ROLE_',r.role_name) as role from users u, " +
+                                "roles r where user_name=? and u.role_id=r.id");
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+
+        http
+                .headers()
+                    .and()
+                .authorizeRequests()
+                //    .antMatchers("/CollectPayment")
+                //.hasAnyRole("Admin","Head","Staff")
+                    .antMatchers("/PartnerDashboard","/AddBranch","/AddGroup","AddMember",
+                        "/CollectPayment","/GroupList","/GroupDetail","/TransactionDetail",
+                        "/UserTransactionDetail","/AuctionReport","/GetAuctionDetails",
+                        "/CompanyDetails","/AddCompany","/AddStaffForCompany",
+                        "/ChangeCompany","/ImportData",
+                        "/UploadDocumentsRequest")
+                .hasAnyRole("Admin","Head","Staff")
+                    .antMatchers("/GetUserTransactionWithDetail","memberDashboard","/contactUs","/GetUserFullDetail")
+                        .hasAnyRole("Admin","Head","Staff","Member")
+                    .antMatchers("/login","/SignOut").permitAll()
+                    .and()
+                .formLogin()
+                    .loginPage("/login")
+                    .failureUrl("/login")
+                    .defaultSuccessUrl("/signInSuccessful")
+                    .usernameParameter("username").passwordParameter("password")
+                    .and()
+                .logout()
+                    .logoutUrl("/SignOut")
+                    .logoutSuccessUrl("/login")
+                    .and()
+//                .exceptionHandling()
+//                    .accessDeniedPage("/login?error")
+//                    .and()
+                .csrf();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder;
+    }
+
+}
