@@ -1,0 +1,81 @@
+<beans xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <!-- Enables the Spring MVC @Controller programming model -->
+    <context:component-scan base-package="it.upspring.laabam.controller"/>
+    <context:component-scan base-package="it.upspring.laabam.service"/>
+    <context:component-scan base-package="it.upspring.laabam.dao"/>
+    <context:component-scan base-package="it.upspring.laabam.config"/>
+    <mvc:annotation-driven/>
+
+
+    <mvc:resources mapping="/static/**" location="/static/"/>
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <bean id="filterMultipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--  max upload size in bytes  -->
+        <property name="maxUploadSize" value="20971520"/>
+        <!--  20MB  -->
+        <!--  max size of file in memory (in bytes)  -->
+        <property name="maxInMemorySize" value="1048576"/>
+        <!--  1MB  -->
+    </bean>
+
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--  max upload size in bytes  -->
+        <property name="maxUploadSize" value="20971520"/>
+        <!--  20MB  -->
+        <!--  max size of file in memory (in bytes)  -->
+        <property name="maxInMemorySize" value="1048576"/>
+        <!--  1MB  -->
+    </bean>
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>/WEB-INF/db.properties</value>
+        </property>
+    </bean>
+
+    <bean id="DataSource" name="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="driverClassName" value="${db.driverClassName}"/>
+        <property name="url" value="${db.url}"/>
+        <property name="username" value="${db.username}"/>
+        <property name="password" value="${db.password}"/>
+    </bean>
+
+    <bean id="NamedParameterJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+        <constructor-arg type="javax.sql.DataSource" ref="dataSource"/>
+        <!--<property name="dataSource" ref="dataSource"></property>-->
+    </bean>
+
+
+
+    <!--<bean id="groupService" class="it.upspring.laabam.service.GroupServiceImpl"/>-->
+    <!--<bean id="groupDao" class="it.upspring.laabam.dao.GroupDaoImpl"/>-->
+    <!--<bean id="userService" class="it.upspring.laabam.service.UserServiceImpl"/>-->
+    <!--<bean id="userDao" class="it.upspring.laabam.dao.UserDaoImpl"/>-->
+    <!--<bean id="memberService" class="it.upspring.laabam.service.MemberServiceImpl"/>-->
+    <!--<bean id="memberDao" class="it.upspring.laabam.dao.MemberDaoImpl"/>-->
+    <!--<bean id="companyService" class="it.upspring.laabam.service.CompanyServiceImpl"/>-->
+    <!--<bean id="companyDao" class="it.upspring.laabam.dao.CompanyDaoImpl"/>-->
+    <!--<bean id="transactionService" class="it.upspring.laabam.service.TransactionServiceImpl"/>-->
+    <!--<bean id="transactionDao" class="it.upspring.laabam.dao.TransactionDaoImpl"/>-->
+    <!--<bean id="branchService" class="it.upspring.laabam.service.BranchServiceImpl"/>-->
+    <!--<bean id="branchDao" class="it.upspring.laabam.dao.BranchDaoImpl"/>-->
+    <!--<bean id="auctionService" class="it.upspring.laabam.service.AuctionServiceImpl"/>-->
+    <!--<bean id="auctionDao" class="it.upspring.laabam.dao.AuctionDaoImpl"/>-->
+    <!--<bean id="employeeService" class="it.upspring.laabam.service.EmployeeServiceImpl"/>-->
+    <!--<bean id="employeeDao" class="it.upspring.laabam.dao.EmployeeDaoImpl"/>-->
+    <!--<bean id="auctionDetailsService" class="it.upspring.laabam.service.AuctionDetailsServiceImpl"/>-->
+    <!--<bean id="auctionDetailsDao" class="it.upspring.laabam.dao.AuctionDetailsDaoImpl"/>-->
+</beans>
